@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>B站「稍后再看」为什么越存越多、越不打开 — 王铂为作品集</title>
-<meta name="description" content="用 Kaggle YouTube Trending 公开数据（n=40,949）验证「时效性偏好」假设，提出智能回顾、时效管理、一键清理三项优化方案。">
+<title>B站「稍后再看」功能优化 — 王铂为作品集</title>
+<meta name="description" content="用 Kaggle YouTube 公开数据（40,949 条）分析「稍后再看」的观看意愿变化，提出智能回顾、时效管理、一键清理三项优化方案。">
 <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
 
 <header class="nav">
   <div class="wrap nav-in">
-    <a class="brand" href="../index.html"><span class="dot">王</span> 王铂为 · 产品作品集</a>
+    <a class="brand" href="../index.html"><img class="brand-avatar" src="../assets/img/avatar.webp" alt="王铂为"> 王铂为 · 产品作品集</a>
     <button class="nav-toggle" aria-label="菜单">☰</button>
     <nav class="nav-links">
       <a href="../index.html#projects">全部项目</a>
       <a href="vod-app-config.html">VOD 应用配置</a>
       <a href="bilibili-slate.html" class="active">稍后再看优化</a>
-      <a href="anime-calendar.html">新番日历</a>
+      <a href="anime-calendar.html">AnimeDate</a>
       <a href="acfun-vs-bilibili.html">竞品分析</a>
     </nav>
   </div>
@@ -26,16 +26,25 @@
 <div class="phead">
   <div class="wrap">
     <a class="back" href="../index.html#projects">← 返回作品集</a>
-    <span class="eyebrow">数据驱动 · 内容平台 · SQL</span>
-    <h1>B站「稍后再看」<br>为什么越存越多、越不打开</h1>
+
+    <div class="doclink">
+      <span class="dl-label">原始文档</span>
+      <a href="https://ocnc5amfn64f.feishu.cn/wiki/Hr5uw0Synigguxk5gFxchPh0n3c" target="_blank" rel="noopener">
+        《基于 YouTube 公开数据对 bilibili 稍后再看功能的优化》<span class="dl-out">飞书文档 ↗</span>
+      </a>
+    </div>
+
+    <span class="eyebrow">数据分析 · 内容平台 · SQL</span>
+    <h1>B站「稍后再看」功能优化：观看意愿的时效性分析</h1>
     <p class="lead" style="max-width:760px">
-      一个被加了 100 次、打开过 3 次的列表。我用 40,949 条公开数据去验证一个假设：
-      不是用户懒，是产品的反馈机制缺了三样东西。
+      「稍后再看」有个很典型的困境：加进去的很多，真正打开看的很少。
+      我用 Kaggle 上一份公开的 YouTube 热门视频数据（40,949 条）做了三段分析，
+      想确认一件事：用户不看，是不是因为拖太久了。
     </p>
     <div class="meta">
-      <span><b>角色</b> 数据分析 + 方案设计</span>
-      <span><b>数据源</b> Kaggle YouTube Trending US（n=40,949）</span>
-      <span><b>产出</b> 3 项数据洞察 → 3 项优化策略</span>
+      <span><b>我的角色</b> 数据分析 + 方案设计</span>
+      <span><b>数据源</b> Kaggle YouTube Trending US，40,949 条</span>
+      <span><b>产出</b> 3 条数据洞察，对应 3 个优化方向</span>
     </div>
   </div>
 </div>
@@ -44,265 +53,230 @@
   <aside class="toc">
     <div class="t">目录</div>
     <a href="#s1">01 项目摘要</a>
-    <a href="#s2">02 背景与问题</a>
+    <a href="#s2">02 问题出在哪</a>
     <a href="#s3">03 数据来源与分析</a>
-    <a href="#s4">04 三项洞察</a>
+    <a href="#s4">04 三条主要发现</a>
     <a href="#s5">05 优化方案</a>
-    <a href="#s6">06 总结与复盘</a>
+    <a href="#s6">06 复盘</a>
   </aside>
 
   <article class="article">
 
-    <div class="callout">
-      <span class="lab">一句话结论</span>
-      <p>「稍后再看」的核心矛盾不是容量不足，而是<b>视频存在"黄金消费期"</b>——
-      发布超过 30 天的视频平均观看量仅 5.1 万，不到整体平均（236 万）的 1/46。
-      列表积压不是因为用户不愿看，而是因为<b>产品从未在"还来得及"的时候提醒他们</b>。</p>
-    </div>
+    <p class="lead">
+      结论先说：视频存在一个「黄金消费期」。发布超过 30 天后，平均观看量只剩 5.1 万，
+      而整体平均是 236 万，差不多是 1/46。所以「稍后再看」里那些躺了很久的视频，
+      不是用户懒，是它们已经过了最可能被打开的那段时间，而产品从来没在「还来得及」的时候提醒过用户。
+    </p>
 
     <h2 id="s1">01 项目摘要</h2>
-    <p>B站「稍后再看」功能存在用户<b>"加而不看"</b>的问题，转化率偏低。
-      本分析基于 Kaggle YouTube Trending 数据集（4 万+ 视频记录），发现<b>非爆款内容积压</b>、
-      <b>新闻类内容过期快</b>、<b>老视频观看意愿低</b>等核心问题，据此提出智能回顾、时效性管理和一键清理三项优化方案。
-      通过降低用户从"收藏"到"观看"的摩擦成本，预计可显著提升「稍后再看」功能的点击转化率与人均观看时长。</p>
+    <p>B站「稍后再看」的转化率偏低，「加而不看」的情况比较普遍。
+      我基于 Kaggle YouTube Trending 数据集（4 万多条视频记录）做了分析，
+      发现三个现象：普通内容大量积压、新闻类内容过期特别快、老视频的观看意愿明显下降。
+      针对这三点，我提出智能回顾、时效管理和一键清理三个方向。
+      核心思路是降低用户从「收藏」到「真正打开」之间的摩擦。</p>
 
     <div class="kpis">
-      <div class="kpi"><b>40,949</b><span>分析样本（条）</span></div>
+      <div class="kpi"><b>40,949</b><span>参与分析的视频记录</span></div>
       <div class="kpi"><b>13.0%</b><span>观看量低于 10 万的视频占比</span></div>
-      <div class="kpi"><b>50×</b><span>新视频 vs 老视频平均观看量差距</span></div>
-      <div class="kpi"><b>30 天</b><span>「黄金消费期」的经验分界</span></div>
+      <div class="kpi"><b>50 倍</b><span>新视频与老视频平均观看量的差距</span></div>
+      <div class="kpi"><b>30 天</b><span>黄金消费期的大致分界线</span></div>
     </div>
 
-    <h2 id="s2">02 背景与问题</h2>
+    <h2 id="s2">02 问题出在哪</h2>
 
-    <h3>2.1 功能定位</h3>
-    <p>B站「稍后再看」是核心的<b>跨场景消费管理工具</b>，帮助用户在信息流中快速标记"感兴趣但当下不便观看"的视频，
-      形成临时消费队列。该功能的设计初衷是降低用户的即时决策压力，提升内容消费的灵活性。</p>
+    <h3>功能定位</h3>
+    <p>「稍后再看」是跨场景的内容管理工具。用户在信息流里看到感兴趣但当下不方便看的内容，
+      先标记一下，攒成一个临时的待看队列。它的价值在于降低用户当下的决策压力，
+      让人不用为「现在不看是不是就错过了」而纠结。</p>
 
-    <h3>2.2 核心痛点</h3>
-    <p>通过初步用户行为分析发现，该功能存在严重的<b>"加而不看"</b>问题。基于 Kaggle YouTube Trending US
-      数据集（n=40,949）的分析，观察到以下现象：</p>
+    <h3>我观察到的现象</h3>
+    <p>看用户行为数据会发现，「加而不看」不是个别情况。基于 40,949 条记录的分析，
+      我做出了一个推断：用户的内容消费有很强的时效性偏好。
+      一个视频被加进「稍后再看」之后，如果没有及时看掉，随着时间推移，用户打开它的意愿会明显下降，
+      最后列表越积越厚，功能本身也就失效了。</p>
 
-    <div class="callout">
-      <span class="lab">核心推断</span>
-      <p>用户的内容消费行为呈现强烈的<b>"时效性偏好"</b>。对于被加入"稍后再看"列表的视频，
-      如果未能及时观看，随着时间推移，用户的观看意愿会急剧下降，导致列表积压和功能失效。</p>
-    </div>
-
-    <h3>2.3 问题归因</h3>
-    <p>基于上述数据发现，将问题归结为三个核心原因：</p>
+    <h3>为什么</h3>
+    <p>我把原因归成三条：</p>
     <table class="tbl">
       <thead><tr><th style="width:170px">原因</th><th>具体表现</th><th>对产品的要求</th></tr></thead>
       <tbody>
-        <tr><td><b>无主动提醒机制</b></td><td>视频加入"稍后再看"后，系统没有任何主动触达，用户极易遗忘列表中的内容</td><td>需要一条不打扰的主动触达通道</td></tr>
-        <tr><td><b>列表管理成本高</b></td><td>列表采用线性排列，无法按类别或时间筛选，查找特定视频效率低</td><td>需要分组 / 筛选能力</td></tr>
-        <tr><td><b>缺乏清理动机</b></td><td>列表没有"过期"或"积压"的概念，用户没有主动清理的动力，列表越积越厚，最终放弃使用</td><td>需要给积压内容一个"可见的出口"</td></tr>
+        <tr><td>没有主动提醒</td><td>视频被加入之后系统没有任何触达，用户很容易忘记列表里还有什么</td><td>需要一条不打扰的触达通道</td></tr>
+        <tr><td>列表管理成本高</td><td>列表是线性排列的，不能按类别或时间筛选，想找某个视频效率很低</td><td>需要分组和筛选</td></tr>
+        <tr><td>缺少清理动力</td><td>列表里没有「过期」或「积压」的概念，用户没有主动清理的理由</td><td>需要给积压内容一个出口</td></tr>
       </tbody>
     </table>
 
     <h2 id="s3">03 数据来源与分析</h2>
 
-    <h3>3.1 数据来源</h3>
-    <p>本分析采用 Kaggle 平台公开的 <b>YouTube Trending US Dataset</b> 作为数据源。
-      虽然 B站未公开用户行为数据，但 YouTube 与 B站 作为同类型视频平台，其用户内容消费行为具有可迁移性。
-      数据集包含 <b>40,949 条</b>视频记录，涵盖以下字段：</p>
+    <h3>数据来源</h3>
+    <p>我用的数据是 Kaggle 上公开的 YouTube Trending US Dataset。
+      B站没有公开的用户行为数据，但 YouTube 和 B站 属于同一类视频平台，
+      用户在内容消费上的行为规律有一定可迁移性。数据集包含 40,949 条记录，字段如下：</p>
 
     <table class="tbl">
       <thead><tr><th style="width:170px">字段</th><th>说明</th></tr></thead>
       <tbody>
         <tr><td><code>video_id</code></td><td>视频唯一标识</td></tr>
-        <tr><td><code>trending_date</code></td><td>视频进入热门榜单的日期</td></tr>
+        <tr><td><code>trending_date</code></td><td>进入热门榜单的日期</td></tr>
         <tr><td><code>title</code></td><td>视频标题</td></tr>
         <tr><td><code>channel_title</code></td><td>频道名称</td></tr>
-        <tr><td><code>category_id</code></td><td>视频分类 ID（用于"新闻 / 娱乐 / 教程"分组）</td></tr>
-        <tr><td><code>publish_time</code></td><td>发布时间（用于时效性分段）</td></tr>
-        <tr><td><code>views</code></td><td>观看量（核心分析指标）</td></tr>
+        <tr><td><code>category_id</code></td><td>分类 ID，用来区分新闻、娱乐、教程等</td></tr>
+        <tr><td><code>publish_time</code></td><td>发布时间，用来做时效性分段</td></tr>
+        <tr><td><code>views</code></td><td>观看量，核心分析指标</td></tr>
         <tr><td><code>likes</code></td><td>点赞数</td></tr>
         <tr><td><code>comment_count</code></td><td>评论数</td></tr>
       </tbody>
     </table>
 
-    <h3>3.2 分析维度与 SQL 逻辑</h3>
+    <h3>三步分析</h3>
 
-    <h4>维度一：观看量分布分析</h4>
-    <p>为了解"稍后再看"列表中可能被遗忘的视频特征，首先分析观看量的整体分布情况。</p>
+    <h4>第一步：观看量分布</h4>
+    <p>先看整体分布，判断有多少内容从一开始就没什么曝光。</p>
     <figure class="shot">
-      <img src="../assets/img/bilibili/sql-dim1.webp" alt="维度一 SQL 查询语句" data-ph="维度一 · SQL 查询语句" data-ph-hint="把飞书文档里的截图放到 assets/img/bilibili/，文件名见该目录 README">
-      <figcaption>维度一 · SQL 查询语句</figcaption>
+      <img src="../assets/img/bilibili/sql-dim1.webp" alt="观看量分布的 SQL 查询" data-ph="SQL 查询语句">
+      <figcaption>查询语句</figcaption>
     </figure>
-    <p><b>分析结果：</b></p>
     <figure class="shot">
-      <img src="../assets/img/bilibili/res-dim1.webp" alt="维度一 分析结果" data-ph="维度一 · 分析结果（查询输出）">
-      <figcaption>维度一 · 分析结果</figcaption>
+      <img src="../assets/img/bilibili/res-dim1.webp" alt="观看量分布的查询结果" data-ph="查询结果">
+      <figcaption>查询结果</figcaption>
     </figure>
     <table class="tbl">
       <thead><tr><th>指标</th><th class="num">数值</th></tr></thead>
       <tbody>
-        <tr><td>低观看量视频占比（&lt; 10 万）</td><td class="num">13.0%</td></tr>
-        <tr><td>最小观看量</td><td class="num">549 次</td></tr>
+        <tr><td>观看量低于 10 万的视频占比</td><td class="num">13.0%</td></tr>
+        <tr><td>最低观看量</td><td class="num">549 次</td></tr>
         <tr><td>平均观看量</td><td class="num">236 万次</td></tr>
-        <tr><td>最大观看量</td><td class="num">2.25 亿次</td></tr>
+        <tr><td>最高观看量</td><td class="num">2.25 亿次</td></tr>
       </tbody>
     </table>
-    <p>发现<b>超过一成视频的观看量不足 10 万</b>，大量视频未能获得有效曝光。这部分视频极有可能被用户"稍后"后遗忘，最终沉没在列表底部。</p>
+    <p>超过一成的视频观看量不到 10 万。这类内容被加进「稍后再看」之后，
+      很可能一直躺在列表底部，没人再打开。</p>
 
-    <h4>维度二：发布时间与观看量的关系分析</h4>
-    <p>为了验证"老视频是否会被用户遗忘"的假设，按发布时间分段统计平均观看量。</p>
+    <h4>第二步：发布时间和观看量的关系</h4>
+    <p>这里要验证的是「老视频是不是真的更容易被忽略」。我按发布时间分段，统计每段的平均观看量。</p>
     <figure class="shot">
-      <img src="../assets/img/bilibili/sql-dim2.webp" alt="维度二 SQL 查询语句" data-ph="维度二 · SQL 查询语句">
-      <figcaption>维度二 · SQL 查询语句</figcaption>
+      <img src="../assets/img/bilibili/sql-dim2.webp" alt="按发布时间分段的 SQL 查询" data-ph="SQL 查询语句">
+      <figcaption>查询语句</figcaption>
     </figure>
-    <p><b>分析结果：</b></p>
     <figure class="shot">
-      <img src="../assets/img/bilibili/res-dim2.webp" alt="维度二 分析结果" data-ph="维度二 · 分析结果">
-      <figcaption>维度二 · 分析结果</figcaption>
+      <img src="../assets/img/bilibili/res-dim2.webp" alt="按发布时间分段的查询结果" data-ph="查询结果">
+      <figcaption>查询结果</figcaption>
     </figure>
-    <p>2017 年新视频的平均观看量（<b>237 万</b>）是 2008–2010 年老视频（<b>4.7 万</b>）的 <b>50 倍以上</b>。
-      这一巨大差距表明，用户的内容消费呈现强烈的"时效性偏好"——发布时间越久，被观看的概率越低。</p>
+    <p>2017 年的新视频平均观看量是 237 万，2008 到 2010 年的老视频只有 4.7 万，差了 50 倍以上。
+      这说明用户的观看行为确实有明显的时间偏好，发布越久，被打开的概率越低。</p>
 
-    <h4>维度三：视频"老化"效应验证</h4>
-    <p>进一步分析发布超过 30 天的视频，验证其观看量是否显著低于新视频。</p>
+    <h4>第三步：30 天这个坎</h4>
+    <p>再单独看发布超过 30 天的视频，确认它们的观看量是不是真的明显低于整体。</p>
     <figure class="shot">
-      <img src="../assets/img/bilibili/sql-dim3.webp" alt="维度三 SQL 查询语句" data-ph="维度三 · SQL 查询语句">
-      <figcaption>维度三 · SQL 查询语句</figcaption>
+      <img src="../assets/img/bilibili/sql-dim3.webp" alt="老化效应验证的 SQL 查询" data-ph="SQL 查询语句">
+      <figcaption>查询语句</figcaption>
     </figure>
-    <p><b>分析结果：</b></p>
     <figure class="shot">
-      <img src="../assets/img/bilibili/res-dim3.webp" alt="维度三 分析结果" data-ph="维度三 · 分析结果">
-      <figcaption>维度三 · 分析结果</figcaption>
+      <img src="../assets/img/bilibili/res-dim3.webp" alt="老化效应验证的查询结果" data-ph="查询结果">
+      <figcaption>查询结果</figcaption>
     </figure>
-    <p>发布超过 30 天的视频，平均观看量仅 <b>5.1 万</b>，远低于整体平均的 <b>236 万</b>。
-      这意味着，视频在发布后有一个<b>"黄金消费期"</b>，一旦错过，被观看的概率将急剧下降。</p>
+    <p>发布超过 30 天的视频，平均观看量只有 5.1 万，而整体平均是 236 万。
+      视频发布后确实有一段黄金消费期，错过之后，被看到的概率会掉得很快。</p>
 
-    <h2 id="s4">04 三项洞察</h2>
+    <h2 id="s4">04 三条主要发现</h2>
 
     <div class="grid-3" style="margin:20px 0">
       <div class="panel">
-        <h4><span class="ic">①</span> 大量视频观看量极低</h4>
-        <p class="small"><b>数据表现：</b>13.0% 的视频观看量低于 10 万，最低仅 549 次。</p>
-        <p class="small muted" style="margin:0"><b>启示：</b>大量普通内容被加入列表后可能永远不被观看，需要主动触达机制。</p>
+        <h4>大量内容观看量极低</h4>
+        <p class="small">13.0% 的视频观看量不到 10 万，最低只有 549 次。</p>
+        <p class="small muted" style="margin:0">这类内容被加进列表后基本不会再被打开，需要主动触达。</p>
       </div>
       <div class="panel">
-        <h4><span class="ic">②</span> 老视频观看意愿显著下降</h4>
-        <p class="small"><b>数据表现：</b>2008–2010 年发布的视频平均观看量仅 4.7 万，而 2017 年新视频达 237 万，差距超 50 倍。</p>
-        <p class="small muted" style="margin:0"><b>启示：</b>用户对列表中的老视频缺乏观看意愿，需要降低老视频的管理成本。</p>
+        <h4>老视频的观看意愿明显下降</h4>
+        <p class="small">2008 到 2010 年发布的视频平均观看量 4.7 万，2017 年的新视频是 237 万，差 50 倍以上。</p>
+        <p class="small muted" style="margin:0">用户对列表里的老视频没有打开欲望，得帮他们降低管理成本。</p>
       </div>
       <div class="panel">
-        <h4><span class="ic">③</span> 视频存在"黄金消费期"</h4>
-        <p class="small"><b>数据表现：</b>发布超过 30 天的视频平均观看量仅 5.1 万，远低于整体平均的 236 万。</p>
-        <p class="small muted" style="margin:0"><b>启示：</b>视频在发布后有一个黄金消费期，过期后转化率极低，需要在该期间内完成提醒。</p>
+        <h4>视频有黄金消费期</h4>
+        <p class="small">发布超过 30 天的视频平均观看量只有 5.1 万，远低于整体的 236 万。</p>
+        <p class="small muted" style="margin:0">提醒必须在这段时间内发出，过期之后转化率极低。</p>
       </div>
     </div>
 
     <h2 id="s5">05 优化方案</h2>
-    <p>基于第三部分的三项数据洞察，提出对应的三项优化策略：</p>
+    <p>三条发现对应三个方向：</p>
 
     <table class="tbl">
-      <thead><tr><th style="width:150px">策略</th><th>对应的数据表现</th><th>核心动作</th></tr></thead>
+      <thead><tr><th style="width:150px">方向</th><th>对应的数据表现</th><th>要做的事</th></tr></thead>
       <tbody>
-        <tr><td><b>策略一<br>智能回顾提醒</b></td><td>13% 的视频观看量低于 10 万，大量内容被加入后石沉大海</td><td>首页信息流插入「稍后再看」回顾卡片，每周推送一次</td></tr>
-        <tr><td><b>策略二<br>一键分类清理</b></td><td>老视频观看量仅为新视频的 1/50，用户对积压内容缺乏处理意愿</td><td>列表页增加分类筛选与一键清理</td></tr>
-        <tr><td><b>策略三<br>时效性内容管理</b></td><td>发布超 30 天的视频平均观看量仅 5.1 万，存在"黄金消费期"</td><td>对新闻 / 热点内容做差异化提醒与过期归档</td></tr>
+        <tr><td>智能回顾提醒</td><td>13% 的视频观看量低于 10 万，大量内容加进来就没了下文</td><td>首页信息流里插入一张回顾卡片，每周推一次</td></tr>
+        <tr><td>一键分类清理</td><td>老视频观看量只有新视频的 1/50，用户没有处理积压内容的动力</td><td>列表页加分类筛选和一键清理</td></tr>
+        <tr><td>时效性内容管理</td><td>发布超 30 天的视频平均观看量只有 5.1 万</td><td>对新闻和热点类内容做差异化提醒和过期归组</td></tr>
       </tbody>
     </table>
 
-    <h3>5.1 策略一：智能回顾提醒</h3>
-    <p>对应数据表现：13% 的视频观看量低于 10 万，大量内容被加入后石沉大海。</p>
-    <p><b>解决方案：</b>在首页信息流中插入"稍后再看"回顾卡片，每周推送一次，精选用户加入但未观看的视频。</p>
+    <h3>智能回顾提醒</h3>
+    <p>在首页信息流里插一张「稍后再看」的回顾卡片，每周推一次，挑用户加进去但一直没看的视频。</p>
     <figure class="shot">
-      <img src="../assets/img/bilibili/proto-review.webp" alt="智能回顾卡片原型" data-ph="策略一 · 回顾卡片原型">
-      <figcaption>策略一 · 回顾卡片原型</figcaption>
+      <img src="../assets/img/bilibili/proto-review.webp" alt="智能回顾卡片原型" data-ph="回顾卡片原型">
+      <figcaption>回顾卡片原型</figcaption>
     </figure>
-    <p><b>功能细节：</b></p>
-    <ul>
-      <li>卡片展示最近一个待看视频</li>
-      <li>视频显示标题、封面、加入天数</li>
-      <li>点击卡片直接跳转到"稍后再看"列表页</li>
-      <li>支持"下次再说"开关，尊重用户意愿</li>
-    </ul>
+    <p>卡片展示最近一个待看视频，包含标题、封面和加入天数，点击直接跳到「稍后再看」列表页。
+      另外给一个「下次再说」的开关，用户不想看就关掉，不要反复打扰。</p>
 
-    <h3>5.2 策略二：一键分类清理</h3>
-    <p>对应数据表现：老视频观看量仅为新视频的 1/50，用户对积压内容缺乏处理意愿。</p>
-    <p><b>解决方案：</b>在"稍后再看"列表页增加分类筛选和一键清理功能。</p>
+    <h3>一键分类清理</h3>
+    <p>在列表页加上分类筛选和一键清理，减少管理积压内容的操作成本。</p>
     <div class="gallery">
       <figure class="shot">
-        <img src="../assets/img/bilibili/proto-clean-1.webp" alt="分类清理原型一" data-ph="策略二 · 原型（1/2）">
-        <figcaption>策略二 · 原型（1/2）</figcaption>
+        <img src="../assets/img/bilibili/proto-clean-1.webp" alt="分类清理原型一" data-ph="分类清理原型（1/2）">
+        <figcaption>分类筛选与批量选择（1/2）</figcaption>
       </figure>
       <figure class="shot">
-        <img src="../assets/img/bilibili/proto-clean-2.webp" alt="分类清理原型二" data-ph="策略二 · 原型（2/2）">
-        <figcaption>策略二 · 原型（2/2）</figcaption>
+        <img src="../assets/img/bilibili/proto-clean-2.webp" alt="分类清理原型二" data-ph="分类清理原型（2/2）">
+        <figcaption>分类筛选与批量选择（2/2）</figcaption>
       </figure>
     </div>
-    <p><b>功能细节：</b></p>
-    <ul>
-      <li>按时间分组：本周加入 / 本月加入 / 超过 30 天 / 过期内容</li>
-      <li>按类型分组：教程 / 娱乐 / 新闻 / 其他（基于 <code>category_id</code> 映射）</li>
-      <li>每个分组右侧显示视频数量，支持一键全选清理</li>
-    </ul>
+    <p>分组按两个维度做：时间上分本周加入、本月加入、超过 30 天、过期内容；
+      类型上分教程、娱乐、新闻和其他，类型靠 category_id 映射。
+      每个分组右侧显示视频数量，支持一键全选清理。</p>
 
-    <h3>5.3 策略三：时效性内容管理</h3>
-    <p>对应数据表现：发布超过 30 天的视频平均观看量仅 5.1 万，视频存在"黄金消费期"。</p>
-    <p><b>解决方案：</b>对有时效性的内容（新闻、热点）做差异化处理，自动识别并提示用户。</p>
-    <p><b>功能细节：</b></p>
-    <ul>
-      <li>系统识别 <code>category_id</code> 为"新闻"的视频，在加入 24 小时后发送站内提醒</li>
-      <li>提醒文案示例：「你收藏的【视频标题】已超过 24 小时，现在看还来得及」</li>
-      <li>对超过 7 天未看的新闻视频，自动移至"过期内容"分组</li>
-      <li>用户可一键清理所有过期新闻内容</li>
-    </ul>
+    <h3>时效性内容管理</h3>
+    <p>对有时效性的内容做差异化处理，让系统自动识别并提示。</p>
+    <p>识别出 category_id 属于新闻类的视频后，在加入 24 小时时发一条站内提醒，
+      文案大概是「你收藏的【视频标题】已超过 24 小时，现在看还来得及」；
+      超过 7 天没看的新闻视频自动移到「过期内容」分组，用户可以一键清空。</p>
     <figure class="shot">
-      <img src="../assets/img/bilibili/proto-expire.webp" alt="时效性内容提醒原型" data-ph="策略三 · 时效提醒原型">
-      <figcaption>策略三 · 时效提醒原型</figcaption>
+      <img src="../assets/img/bilibili/proto-expire.webp" alt="时效性提醒原型" data-ph="时效提醒原型">
+      <figcaption>时效性提醒原型</figcaption>
     </figure>
 
-    <div class="callout ok">
-      <span class="lab">取舍说明</span>
-      <p>三项策略里，<b>策略三（时效性管理）</b>是唯一会"主动打扰用户"的——站内提醒必须谨慎。
-      因此我把它限制在两个条件下触发：内容本身是新闻类（<code>category_id</code> 判定），且加入已超过 24 小时。
-      对时效性弱的内容（教程、娱乐）绝不提醒。宁可少提醒，也不能让用户把这条通道关掉——
-      提醒通道一旦被用户屏蔽，策略一和策略三就同时失效了。</p>
-    </div>
+    <p>三个方案里，时效性管理是唯一会主动打扰用户的，所以我把触发条件收得很紧：
+      内容必须是新闻类，并且加入已超过 24 小时。教程、娱乐这类时效性弱的内容一律不提醒。
+      宁可少提醒，也不能让用户把这条通道关掉，因为它一关，另外两个方案的触达也就一起失效了。</p>
 
-    <h2 id="s6">06 总结与复盘</h2>
+    <h2 id="s6">06 复盘</h2>
 
-    <h3>6.1 项目总结</h3>
-    <p>本项目基于 Kaggle YouTube Trending 公开数据集（n=40,949），通过分析视频观看量分布、发布时间与观看量的关系，
-      发现 B站「稍后再看」功能存在的核心问题：<b>非爆款内容被大量积压、老视频用户观看意愿低、视频存在"黄金消费期"</b>。
-      针对以上问题，提出三项优化方案：</p>
-    <ol>
-      <li><b>智能回顾提醒</b>——在首页推送被遗忘的视频；</li>
-      <li><b>时效性内容管理</b>——对新闻类内容做 24 小时提醒；</li>
-      <li><b>一键分类清理</b>——降低用户管理积压内容的成本。</li>
-    </ol>
+    <h3>做成了什么</h3>
+    <p>基于 40,949 条公开数据，我确认了「稍后再看」的核心问题是内容积压、老视频没人看、
+      以及视频存在黄金消费期，并对应提出了三个改进方向。</p>
 
-    <h3>6.2 个人成长</h3>
+    <h3>学到了什么</h3>
     <ul>
-      <li><b>数据分析能力：</b>使用 SQL 对 4 万+ 条真实数据进行分析，从数据中发现产品问题。</li>
-      <li><b>产品设计能力：</b>基于数据洞察提出优化方案，并用 Figma 完成高保真原型设计。</li>
-      <li><b>数据驱动思维：</b>理解了"用数据发现问题 → 用设计解决问题 → 用数据验证效果"的闭环。</li>
+      <li>用 SQL 对 4 万多条真实数据做分析，从数据里找产品问题，比拍脑袋可靠得多。</li>
+      <li>把数据洞察变成方案的过程中，真正的难点在于取舍，比如时效性提醒该做多轻。</li>
+      <li>理解了「用数据发现问题、用设计解决问题、再用数据验证效果」这个闭环，我这次只走完了前两步。</li>
     </ul>
 
-    <h3>6.3 项目不足</h3>
-    <div class="callout warn">
-      <span class="lab">诚实说明</span>
-      <p>本分析使用 YouTube 数据代理 B站 用户行为，<b>存在平台差异带来的外推风险</b>：
-      YouTube 的推荐机制、用户构成与 B站 并不相同，结论的方向性可以借鉴，但具体数值不能直接迁移。
-      更严谨的做法是同时引入一份国内平台的公开数据做交叉验证——这是我下一步想补的功课。</p>
-    </div>
+    <h3>这个分析有什么问题</h3>
+    <p>我用 YouTube 的数据来推 B站 的用户行为，这里面有外推风险。
+      两个平台的推荐机制和用户构成都不一样，结论的方向可以借鉴，但具体数值不能直接搬过去。
+      更严谨的做法是再找一份国内平台的公开数据做交叉验证，这是我下一步想补的。</p>
 
-    <div class="callout">
-      <span class="lab">下一步</span>
-      <p>把三项策略拆成可验证的假设与指标（例如"回顾卡片点击率 ≥ 8%""过期内容 7 日内清理率 ≥ 30%"），
-      设计一个两周的 A/B 实验方案，用最小改动先验证策略一。</p>
-    </div>
+    <p>另外我只走完了闭环的前两步。三个方案目前还停在设计阶段，
+      下一步应该把它们拆成可验证的假设和指标，比如「回顾卡片点击率不低于 8%」
+      「过期内容 7 天内清理率不低于 30%」，再用两周的 A/B 实验从改动最小的那个方案开始验证。</p>
 
   </article>
 </div>
 
 <footer class="site">
   <div class="wrap row">
-    <span>© <span data-year></span> 王铂为 · 产品作品集</span>
+    <span>© <span data-year></span> 王铂为</span>
     <span><a href="../index.html#projects">← 返回全部项目</a></span>
   </div>
 </footer>
