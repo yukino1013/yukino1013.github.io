@@ -1,0 +1,189 @@
+/* ==========================================================================
+   VOD 应用配置 —— 可交互原型（依据《VOD 新增应用配置-需求说明书 V1.0》还原）
+   作用域：.vod  （与站点主题隔离）
+   ========================================================================== */
+.vod {
+  --v-bg: #0e1420;
+  --v-panel: #16202f;
+  --v-panel-2: #1d2839;
+  --v-line: rgba(255, 255, 255, .09);
+  --v-text: #eef3fb;
+  --v-dim: #8fa0b8;
+  --v-blue: #2f7bff;
+  --v-blue-2: #4f9bff;
+  --v-radius: 12px;
+  font-family: var(--font);
+  color: var(--v-text);
+  background: var(--v-bg);
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .08);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  user-select: none;
+}
+
+/* 顶栏 */
+.vod .v-top {
+  height: 46px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; background: linear-gradient(180deg, #131c2b, #101827);
+  border-bottom: 1px solid var(--v-line); font-size: 13px; color: var(--v-dim);
+}
+.vod .v-top .v-title { color: var(--v-text); font-weight: 600; letter-spacing: .02em; }
+.vod .v-top .v-time { font-variant-numeric: tabular-nums; }
+
+/* 主体：左列表 + 内容区 */
+.vod .v-main { display: grid; grid-template-columns: 190px 1fr; min-height: 420px; }
+.vod .v-side {
+  background: #111a27; border-right: 1px solid var(--v-line); padding: 12px 10px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.vod .v-side .v-side-h { font-size: 11px; color: #61708a; letter-spacing: .12em; padding: 6px 10px 8px; }
+.vod .v-side button {
+  all: unset; cursor: pointer; padding: 9px 12px; border-radius: 9px; font-size: 13.5px;
+  color: #a9b8cd; display: flex; align-items: center; gap: 9px; transition: .15s;
+}
+.vod .v-side button:hover { background: rgba(255, 255, 255, .05); color: #fff; }
+.vod .v-side button.on { background: var(--v-blue); color: #fff; font-weight: 600; box-shadow: 0 6px 16px -8px rgba(47, 123, 255, .9); }
+.vod .v-side .v-spacer { flex: 1; }
+.vod .v-side button.on { animation: v-pulse 1.8s ease-in-out 3; }
+@keyframes v-pulse {
+  0%, 100% { box-shadow: 0 6px 16px -8px rgba(47, 123, 255, .9); }
+  50% { box-shadow: 0 0 0 6px rgba(47, 123, 255, .28); }
+}
+.vod .v-side .v-sep { height: 1px; background: var(--v-line); margin: 8px 6px; }
+
+/* 内容区 */
+.vod .v-body { position: relative; padding: 14px 18px 18px; background:
+  radial-gradient(900px 320px at 15% -10%, rgba(47, 123, 255, .16), transparent 60%), #0e1420; min-height: 420px; }
+.vod .v-tabs { display: flex; align-items: center; gap: 22px; justify-content: center; position: relative; }
+.vod .v-tab {
+  all: unset; cursor: pointer; font-size: 15px; padding: 6px 4px 9px; color: var(--v-dim);
+  border-bottom: 2px solid transparent; font-weight: 500; transition: .15s;
+}
+.vod .v-tab:hover { color: #cfe0f7; }
+.vod .v-tab.on { color: var(--v-blue-2); border-bottom-color: var(--v-blue-2); font-weight: 700; }
+.vod .v-disk-btn {
+  all: unset; cursor: pointer; position: absolute; right: 0; top: 0; font-size: 12.5px;
+  color: #b8c8dd; border: 1px solid var(--v-line); border-radius: 999px; padding: 5px 13px;
+  display: flex; align-items: center; gap: 6px; transition: .15s; background: rgba(255, 255, 255, .03);
+}
+.vod .v-disk-btn:hover { border-color: var(--v-blue); color: #fff; }
+
+/* 应用网格：3 行 × 4 列 */
+.vod .v-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+.vod .v-card {
+  background: var(--v-panel); border: 1px solid var(--v-line); border-radius: var(--v-radius);
+  padding: 13px 10px 11px; text-align: center; display: flex; flex-direction: column; align-items: center;
+  gap: 8px; transition: .16s; min-height: 118px;
+}
+.vod .v-card:hover { background: var(--v-panel-2); border-color: rgba(255, 255, 255, .18); transform: translateY(-1px); }
+.vod .v-logo {
+  all: unset; cursor: pointer; width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center;
+  font-size: 21px; background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .07);
+}
+.vod .v-logo:hover { box-shadow: 0 0 0 2px var(--v-blue); }
+.vod .v-name { font-size: 12.5px; color: #dce7f7; line-height: 1.3; }
+.vod .v-sub { font-size: 11px; color: #7f90a8; margin-top: -4px; }
+
+.vod .v-btn {
+  all: unset; cursor: pointer; font-size: 12.5px; font-weight: 600; padding: 6px 0; width: 100%;
+  text-align: center; border-radius: 8px; background: var(--v-blue); color: #fff; transition: .15s;
+}
+.vod .v-btn:hover { background: #4a8bff; }
+.vod .v-btn.ghost { background: rgba(255, 255, 255, .08); color: #cbd8ea; }
+.vod .v-btn.ghost:hover { background: rgba(255, 255, 255, .15); color: #fff; }
+.vod .v-btn[disabled] { background: rgba(255, 255, 255, .07); color: #6f809a; cursor: not-allowed; }
+
+/* 进度条（下载中 / 暂停中） */
+.vod .v-progress {
+  all: unset; cursor: pointer; width: 100%; height: 28px; border-radius: 8px; position: relative;
+  background: rgba(255, 255, 255, .1); overflow: hidden; display: block;
+}
+.vod .v-progress > i {
+  position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #2f7bff, #56a2ff);
+  transition: width .18s linear; display: block;
+}
+.vod .v-progress > span {
+  position: absolute; inset: 0; display: grid; place-items: center; font-size: 11.5px; font-weight: 700;
+  color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .45); font-variant-numeric: tabular-nums;
+}
+.vod .v-progress.paused > i { background: linear-gradient(90deg, #6a7893, #8b99b3); }
+
+/* 详情页 */
+.vod .v-detail {
+  position: absolute; inset: 0; background: rgba(8, 12, 20, .97); padding: 22px 26px;
+  display: flex; flex-direction: column; z-index: 12; overflow: auto;
+}
+.vod .v-detail .v-close {
+  all: unset; cursor: pointer; position: absolute; right: 14px; top: 12px; width: 30px; height: 30px;
+  border-radius: 8px; display: grid; place-items: center; color: #9fb0c7; font-size: 16px;
+}
+.vod .v-detail .v-close:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.vod .v-dhead { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; }
+.vod .v-dhead .v-logo { width: 58px; height: 58px; font-size: 28px; }
+.vod .v-dhead h4 { margin: 0 0 5px; font-size: 18px; color: #fff; }
+.vod .v-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--v-dim); }
+.vod .v-desc { font-size: 13.5px; color: #b9c8dd; line-height: 1.8; margin-bottom: 18px; }
+.vod .v-dactions { display: flex; gap: 10px; margin-top: auto; }
+.vod .v-dactions .v-btn { width: auto; padding: 9px 22px; font-size: 13.5px; }
+
+/* Toast 提示 */
+.vod .v-toast {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.96);
+  background: rgba(18, 24, 36, .96); border: 1px solid rgba(255, 255, 255, .14); color: #fff;
+  padding: 14px 24px; border-radius: 12px; font-size: 14px; box-shadow: 0 20px 50px -12px rgba(0, 0, 0, .8);
+  opacity: 0; pointer-events: none; transition: opacity .28s ease, transform .28s ease; z-index: 30;
+  max-width: 78%; text-align: center;
+}
+.vod .v-toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+/* 弹窗（卸载确认 / 卸载中 / 更新确认 / 磁盘） */
+.vod .v-mask {
+  position: absolute; inset: 0; background: rgba(4, 7, 12, .72); display: grid; place-items: center;
+  z-index: 25; opacity: 0; transition: opacity .2s;
+}
+.vod .v-mask.show { opacity: 1; }
+.vod .v-dialog {
+  background: #16202f; border: 1px solid rgba(255, 255, 255, .12); border-radius: 14px;
+  padding: 22px 24px; min-width: 300px; max-width: 82%; box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .9);
+  transform: translateY(6px); transition: transform .2s;
+}
+.vod .v-mask.show .v-dialog { transform: translateY(0); }
+.vod .v-dialog h5 { margin: 0 0 8px; font-size: 15.5px; color: #fff; }
+.vod .v-dialog p { margin: 0; font-size: 13.5px; color: #b6c6dc; line-height: 1.7; }
+.vod .v-dialog .v-acts { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+.vod .v-dialog .v-acts .v-btn { width: auto; padding: 7px 20px; }
+
+/* 磁盘弹窗 */
+.vod .v-disk { text-align: center; min-width: 340px; position: relative; }
+.vod .v-disk h5 { text-align: center; margin-bottom: 16px; font-size: 16px; }
+.vod .v-disk .v-x { all: unset; cursor: pointer; position: absolute; right: -6px; top: -6px; width: 26px; height: 26px;
+  border-radius: 7px; display: grid; place-items: center; color: #9fb0c7; }
+.vod .v-disk .v-x:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.vod .v-ring { position: relative; width: 176px; height: 176px; margin: 0 auto 6px; }
+.vod .v-ring svg { transform: rotate(-90deg); display: block; }
+.vod .v-ring .v-track { fill: none; stroke: rgba(255, 255, 255, .09); stroke-width: 14; }
+.vod .v-ring .v-arc { fill: none; stroke: var(--v-blue); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset .5s ease; }
+.vod .v-ring .v-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.vod .v-ring .v-pct { font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -.03em; }
+.vod .v-ring .v-amount { font-size: 12.5px; color: var(--v-dim); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.vod .v-disk .v-legend { font-size: 12px; color: var(--v-dim); }
+
+/* 空状态 */
+.vod .v-empty { text-align: center; color: #6d7d96; font-size: 13.5px; padding: 60px 0; }
+
+/* 底部提示条 */
+.vod .v-foot {
+  border-top: 1px solid var(--v-line); padding: 9px 16px; font-size: 12px; color: #6d7d96;
+  display: flex; justify-content: space-between; gap: 12px; background: #101827; flex-wrap: wrap;
+}
+.vod .v-foot b { color: #a9bad0; font-weight: 600; }
+
+@media (max-width: 720px) {
+  .vod .v-main { grid-template-columns: 1fr; }
+  .vod .v-side { flex-direction: row; overflow-x: auto; align-items: center; }
+  .vod .v-side .v-side-h, .vod .v-spacer, .vod .v-sep { display: none; }
+  .vod .v-grid { grid-template-columns: repeat(3, 1fr); }
+  .vod .v-disk { min-width: 0; }
+}

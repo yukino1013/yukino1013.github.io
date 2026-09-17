@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>番约AnimeData · 新番更新日历 — 王铂为作品集</title>
+<meta name="description" content="独立完成的 Android 新番日历应用：移动端 H5 + Capacitor 打包，三级数据源自动回退架构，搜索性能优化 7 倍。">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="../index.html"><span class="dot">王</span> 王铂为 · 产品作品集</a>
+    <button class="nav-toggle" aria-label="菜单">☰</button>
+    <nav class="nav-links">
+      <a href="../index.html#projects">全部项目</a>
+      <a href="vod-app-config.html">VOD 应用配置</a>
+      <a href="bilibili-slate.html">稍后再看优化</a>
+      <a href="anime-calendar.html" class="active">新番日历</a>
+      <a href="acfun-vs-bilibili.html">竞品分析</a>
+    </nav>
+  </div>
+</header>
+
+<div class="phead">
+  <div class="wrap">
+    <a class="back" href="../index.html#projects">← 返回作品集</a>
+    <span class="eyebrow">独立开发 · 移动应用 · 全流程</span>
+    <h1>番约AnimeData<br>新番更新日历 App</h1>
+    <p class="lead" style="max-width:760px">
+      不是"做一个界面"，而是把一个产品做到<b>装上就能用、断网也不白屏、分享给别人也能跑</b>。
+      从需求、交互、视觉还原到 Android 打包与数据服务，全流程一人完成。
+    </p>
+    <div class="meta">
+      <span><b>我的角色</b> 产品设计 + 前端 + 后端服务 + 打包发布</span>
+      <span><b>交付物</b> 可安装 APK（6.9 MB）· 本地数据服务 · 每日自动刷新</span>
+      <span><b>数据来源</b> Bangumi 官方 API（111 部在播番剧）</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap proj">
+  <aside class="toc">
+    <div class="t">目录</div>
+    <a href="#s1">01 一句话说清</a>
+    <a href="#s2">02 应用截图</a>
+    <a href="#s3">03 技术方案</a>
+    <a href="#s4">04 三级数据源回退</a>
+    <a href="#s5">05 搜索是怎么做的</a>
+    <a href="#s6">06 踩过的坑</a>
+    <a href="#s7">07 量化结果</a>
+    <a href="#s8">08 复盘</a>
+  </aside>
+
+  <article class="article">
+
+    <div class="callout">
+      <span class="lab">一句话结论</span>
+      <p>一个"查今天更新了哪些番"的小工具，真正的工程量在<b>数据可靠性</b>上：
+      本地服务最快最全 → 直连官方 API 保证手机单独可用 → 离线快照兜底保证永远不白屏。
+      三级自动回退做完之后，这个 App 才敢直接发给别人安装。</p>
+    </div>
+
+    <h2 id="s1">01 一句话说清</h2>
+    <p>独立完成一款 Android <b>「新番更新日历」</b>应用：移动端 H5 界面 + Capacitor 打包为 APK，
+      数据全部来自 Bangumi 官方 API，含本地数据服务与每日自动刷新。</p>
+
+    <div class="kpis">
+      <div class="kpi"><b>6.9 MB</b><span>可安装 APK，Android 5.0+</span></div>
+      <div class="kpi"><b>111 部</b><span>在播番剧（详情 + 全量剧集）</span></div>
+      <div class="kpi"><b>1.4 s</b><span>冷启动首次搜索（优化前 9.5 s）</span></div>
+      <div class="kpi"><b>300 KB</b><span>单日列表图片流量（原约 5 MB）</span></div>
+    </div>
+
+    <table class="tbl">
+      <thead><tr><th style="width:170px">交付物</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>可安装 APK</td><td>约 6.9 MB，覆盖安装即可用，支持 Android 5.0+</td></tr>
+        <tr><td>本地数据服务</td><td>Node.js 零依赖，端口 8787：透传官方 API + 缓存 + 归一化</td></tr>
+        <tr><td>每日全量刷新</td><td>每日 02:00 由 Windows 任务计划程序触发，含服务登录自启</td></tr>
+        <tr><td>数据规模</td><td>111 部在播番剧 ×（详情 + 全量剧集与播出日期）</td></tr>
+        <tr><td>界面还原</td><td>按 Figma 设计稿实现，配色 / 尺寸 / 圆角逐项核对</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="s2">02 应用截图</h2>
+    <p>下列截图全部来自真机模拟器实机运行，非设计稿。</p>
+    <div class="gallery phones">
+      <figure class="shot"><img src="../assets/img/anime/apk-home.webp" alt="首页日历" data-ph="首页日历截图"><figcaption>首页 · 周视图日历</figcaption></figure>
+      <figure class="shot"><img src="../assets/img/anime/apk-home-list.webp" alt="当日更新列表" data-ph="当日更新列表"><figcaption>当日更新列表</figcaption></figure>
+      <figure class="shot"><img src="../assets/img/anime/apk-day.webp" alt="选中日期" data-ph="选中日期状态"><figcaption>选中日期的状态反馈</figcaption></figure>
+      <figure class="shot"><img src="../assets/img/anime/apk-video.webp" alt="月份过渡" data-ph="跨月过渡动画"><figcaption>跨月滑动 · 月份大字过渡</figcaption></figure>
+      <figure class="shot"><img src="../assets/img/anime/apk-detail.webp" alt="番剧详情页" data-ph="番剧详情页"><figcaption>番剧详情 · 评分 / 标签 / 剧集</figcaption></figure>
+      <figure class="shot"><img src="../assets/img/anime/apk-search.webp" alt="搜索结果" data-ph="搜索结果页"><figcaption>搜索 · 三级排序命中「转生」</figcaption></figure>
+      <figure class="shot"><img src="../assets/img/anime/apk-search2.webp" alt="搜索结果二" data-ph="搜索结果页（2）"><figcaption>搜索 · 更多结果与近期标记</figcaption></figure>
+      <figure class="shot"><img src="../assets/img/anime/apk-offline.webp" alt="离线兜底提示" data-ph="离线兜底提示"><figcaption>完全离线时的兜底与重试提示</figcaption></figure>
+      <figure class="shot"><img src="../assets/img/anime/apk-launcher.webp" alt="桌面图标" data-ph="桌面应用名"><figcaption>桌面图标与应用名</figcaption></figure>
+      <figure class="shot"><img src="../assets/img/anime/h5-home.webp" alt="H5 首页" data-ph="H5 首页"><figcaption>浏览器内 H5 · 首页</figcaption></figure>
+      <figure class="shot"><img src="../assets/img/anime/h5-detail.webp" alt="H5 详情" data-ph="H5 详情页"><figcaption>浏览器内 H5 · 详情</figcaption></figure>
+      <figure class="shot"><img src="../assets/img/anime/h5-search.webp" alt="H5 搜索" data-ph="H5 搜索页"><figcaption>浏览器内 H5 · 搜索</figcaption></figure>
+    </div>
+
+    <h2 id="s3">03 技术方案</h2>
+    <table class="tbl">
+      <thead><tr><th style="width:120px">层级</th><th>选型与说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>前端</b></td><td>原生 HTML / CSS / JavaScript（移动端 H5，无框架、零构建步骤）；横向分页滑动日历（CSS scroll-snap）、Canvas 视频末帧定格、hash 路由</td></tr>
+        <tr><td><b>打包</b></td><td>Capacitor 6 → Android 工程（Gradle 8.2.1 / AGP 8.2.1 / JDK 17 / compileSdk 34）</td></tr>
+        <tr><td><b>后端</b></td><td>Node.js 零依赖 HTTP 服务；Bangumi API 客户端 + 归一化 + 多级缓存</td></tr>
+        <tr><td><b>自动化</b></td><td>Windows 任务计划程序（每日 2:00 刷新）、登录自启常驻服务、访问日志（含 HTTP 状态码）</td></tr>
+        <tr><td><b>环境</b></td><td>Android SDK（platform-tools / emulator / platform-35 / build-tools）、AVD（Android 15 x86_64）、模拟器 WHPX 硬件加速</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <span class="lab">为什么不用框架</span>
+      <p>这个 App 的页面数量少、交互清晰，引入框架带来的构建链路与调试成本大于收益。
+      <b>零构建步骤</b>意味着改一行代码刷新浏览器就能看到结果，也让 Capacitor 打包时几乎没有额外变量——
+      排查"浏览器里正常、APK 里失败"这类问题时，可以把嫌疑范围收窄到容器层而不是构建产物。</p>
+    </div>
+
+    <h2 id="s4">04 三级数据源自动回退</h2>
+    <p>App 不依赖电脑也能用。启动时按优先级自动选择数据源：</p>
+
+    <table class="tbl">
+      <thead><tr><th style="width:70px">优先级</th><th style="width:150px">模式</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>1</b></td><td>本地数据服务</td><td>并行探测：同源 / <code>10.0.2.2:8787</code>（模拟器）/ 内网 IP（真机同 Wi-Fi）/ <code>127.0.0.1</code>。数据最全最快，含服务端排序与补查</td></tr>
+        <tr><td><b>2</b></td><td>直连官方 API</td><td>APK 内走 <code>CapacitorHttp</code> 原生请求（可带 UA、不受 CORS 限制）；浏览器走 fetch。日历 / 剧集 / 搜索结果本地缓存（12h / 6h / 60s），<b>手机有网就能用，可分享给别人</b></td></tr>
+        <tr><td><b>3</b></td><td>离线快照</td><td>完全离线时退回随包快照（111 部在播番），界面提示并可点击重试，每 20 秒自动重试回到在线</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout ok">
+      <span class="lab">这条架构解决的到底是什么问题</span>
+      <p>开发期最容易被忽略的问题是：<b>我的开发环境是"最好情况"，用户的手机是"最坏情况"。</b>
+      我本地永远开着数据服务，所以一切正常；但把 APK 发给别人，对方手机上没有服务、可能在公司网络、可能地铁里没信号——
+      三个降级层级分别对应"有电脑""有网""连网都没有"，确保任何一层失败都不会让用户看到白屏。</p>
+    </div>
+
+    <h2 id="s5">05 搜索是怎么做的</h2>
+    <p>搜索看起来是最简单的功能，实际是这个项目投入最多的地方。</p>
+
+    <h3>查得全：双接口合并去重</h3>
+    <p>并行查询官方两套搜索接口（v0 与旧版）并按 id 合并去重，扩大覆盖范围：v0 接口相关度好、字段全；
+      旧接口匹配宽松、覆盖全。</p>
+
+    <h3>排得准：三级排序</h3>
+    <table class="tbl">
+      <thead><tr><th style="width:110px">层级</th><th>规则</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="3"><b>标题匹配级</b><br><span class="small muted">级别高的在前</span></td><td><b>2</b> — 标题含完整关键词（连续整词，中/日文名任一）</td></tr>
+        <tr><td><b>1</b> — 多词查询时命中其中任一词</td></tr>
+        <tr><td><b>0</b> — 仅别名 / 标签命中</td></tr>
+        <tr><td><b>同级别内</b></td><td>最近更新优先（按最近播出日倒序）→ 热度（在看人数 → 评分人数）→ 标题更短者优先</td></tr>
+      </tbody>
+    </table>
+    <p>「最近更新」只统计已播出的剧集（排除未来话数），命中结果带「近期更新 MM-DD」标识。
+      缓存外的番剧会并发补查官方剧集接口（并发 6，结果复用 6 小时）。</p>
+    <p>回归脚本 <code>check-search.mjs</code> 会校验「分级单调不增 + 组内规则」，7 个关键词用例 7/7 通过。</p>
+
+    <h2 id="s6">06 踩过的坑</h2>
+    <p>下面这些问题都是从线上现象出发、定位到根因、再验证修复的完整闭环。挑 4 个最有代表性的：</p>
+
+    <div class="steps">
+      <div class="step">
+        <b>官方 API 单页硬上限：热门标题会整个漏掉</b>
+        <p>现象：搜「转生」搜不到《无职转生》。定位：Bangumi v0 搜索单页固定最多返回 20 条，
+        <code>limit</code> 传 25 / 50 都无效，必须用 <code>offset</code> 翻页。
+        解决：改为翻 4 页 + 合并旧接口，结果上限 80 条，并补充「最近更新」实时补查；用回归脚本固化该规则。</p>
+      </div>
+      <div class="step">
+        <b>分页参数漏传：翻页了，但翻的是同一页</b>
+        <p>现象：加入翻页逻辑后仍漏数据。定位：自研 API 客户端<b>未透传 <code>offset</code> 参数</b>，
+        4 次翻页实际拿到同一批数据。解决：修复后「转生」搜索结果由 27 条提升到 <b>80 条</b>。</p>
+      </div>
+      <div class="step">
+        <b>直连模式搜索结果不一致（线上反馈）</b>
+        <p>现象：用户反馈"连电脑时正常、直连时搜索结果不同"。定位：逐步复刻请求，发现合并两数据源时
+        <b>循环少了一层</b>——把「每页的数组」当成「条目数组」遍历，导致 v0 接口结果被整体丢弃、只剩另一数据源的 25 条。
+        解决：修复后两种模式逐条一致（实测 4 个关键词完全对齐，近期标记一致）。</p>
+      </div>
+      <div class="step">
+        <b>WebView 与浏览器请求通道差异</b>
+        <p>现象：浏览器内直连正常，APK 内失败。定位：APK 走原生 HTTP（<code>CapacitorHttp</code>）、浏览器走 <code>fetch</code>，
+        两者的网络栈与 CORS 行为不同。解决：为原生通道增加「失败自动退回 WebView fetch」的双通道容错，
+        并在界面上<b>分阶段展示失败原因</b>（电脑服务 / 原生请求 / 直连），让用户能自助判断问题出在哪一层。</p>
+      </div>
+    </div>
+
+    <h3>其余 5 个问题（简述）</h3>
+    <ul>
+      <li><b>背景视频"播完跳变"：</b>定格瞬间画面会缩放跳动。原因是定格画布把 16:9 整帧拉伸进 3.3:1 容器，
+        而播放时是 <code>object-fit: cover</code> 的居中裁剪。改为按 cover 规则做同源裁剪绘制后，
+        与 cover 参考图平均差 <b>4.4/255</b>（旧拉伸画法差 20.3/255）——用像素级对比验证，而不是"看起来好了"。</li>
+      <li><b>列表海报发糊：</b>为提速改用 150px 缩略图后，海报显示约 300 物理像素被放大 2 倍。
+        改为启动时探测 400px 缩略图可用性（可用则用 400px、否则回退原图），并让首屏等待探测结果，避免"先糊后清"。</li>
+      <li><b>搜索首次耗时近 10 秒：</b>实测官方搜索接口「每进程首次 POST」需约 9 秒（之后仅 0.35 秒）。
+        服务启动即预热搜索通道并每 5 分钟保活，首次搜索由 <b>9.5 秒降至 1.4 秒</b>；另加 60 秒结果缓存（重复搜索 6 毫秒返回）。</li>
+      <li><b>返回后导航状态丢失：</b>从详情页返回会跳回「今天」。定位为路由在回首页时强制重置选中日期；
+        修复后返回保持原选中日期与列表。</li>
+      <li><b>环境类问题（工程化排查能力）：</b>模拟器 guest 无 DNS 导致直连验证受阻 → 通过 logcat 应用日志与系统
+        NetworkMonitor 报错交叉定位，确认属模拟器环境问题而非应用问题；本机内存紧张导致模拟器被回收 →
+        采用「构建与模拟器不并发」规避；PowerShell 以 GBK 解码无 BOM 的 UTF-8 脚本导致中文路径判定异常 → 改用码点拼路径解决。</li>
+    </ul>
+
+    <h2 id="s7">07 量化结果</h2>
+    <table class="tbl">
+      <thead><tr><th style="width:190px">维度</th><th>结果</th></tr></thead>
+      <tbody>
+        <tr><td>交付</td><td>可安装 APK 约 <b>6.9 MB</b>；覆盖安装，无需卸载</td></tr>
+        <tr><td>数据</td><td>111 部在播番剧 ×（详情 + 全量剧集）；每日 2:00 自动全量刷新（单次全量约 27–33 秒，<b>0 失败</b>）</td></tr>
+        <tr><td>搜索性能</td><td>冷启动首次 <b>1.4 秒</b>（优化前 9.5 秒）；重复搜索 <b>6 毫秒</b>；单次返回上限 80 条；结果缓存 60 秒</td></tr>
+        <tr><td>搜索质量</td><td>4 个关键词在「连电脑 / 直连」两种模式下逐条一致；回归脚本 7 个用例 <b>7/7 通过</b></td></tr>
+        <tr><td>图片流量</td><td>列表封面由原图（数百 KB/张）优化为 400px 缩略图（约 18 KB/张），单日列表图片量由约 5 MB 降至约 <b>300 KB</b></td></tr>
+        <tr><td>界面还原</td><td>Figma 设计稿关键尺寸逐项核对（视频条 369×111、日期栏 78px / 圆角 10、卡片 369 / 圆角 10、选中日底色 <code>#FFF0F0</code> + 主题色 <code>#DE496E</code>）</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="s8">08 复盘</h2>
+    <h3>作为产品经理，这个项目给我什么</h3>
+    <ul>
+      <li><b>我知道"需求写得不清楚"的代价了。</b>自己写代码才发现，一句"搜索要准"背后是三级排序规则、
+        两套接口的合并策略、以及一个可复跑的回归脚本。写需求时的模糊，最终会变成开发和测试的返工。</li>
+      <li><b>我知道"降级方案"不是可选项。</b>三级数据源回退不是过度设计，而是"可分享给别人"这个产品目标的必要条件。
+        任何依赖外部环境的方案，都必须回答"最坏情况下会怎样"。</li>
+      <li><b>我知道怎么把"感觉好了"变成"确实好了"。</b>像素差 4.4/255 vs 20.3/255、搜索 27 条 → 80 条、
+        首次 9.5 秒 → 1.4 秒——这些数字才是能写进复盘、也能写进简历的东西。</li>
+    </ul>
+
+    <h3>下一步</h3>
+    <ul>
+      <li>增加"我的追番"订阅与本地提醒，把"查更新"升级为"主动提醒"。</li>
+      <li>把数据服务抽成可部署的版本，去掉"需要一台常开的电脑"这个隐含前提。</li>
+      <li>接入更多数据源做交叉校验，避免单一 API 的字段缺失影响展示。</li>
+    </ul>
+
+  </article>
+</div>
+
+<footer class="site">
+  <div class="wrap row">
+    <span>© <span data-year></span> 王铂为 · 产品作品集</span>
+    <span><a href="../index.html#projects">← 返回全部项目</a></span>
+  </div>
+</footer>
+
+<script src="../assets/js/site.js"></script>
+</body>
+</html>

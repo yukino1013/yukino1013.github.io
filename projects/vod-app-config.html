@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VOD 新增应用配置 · 让机顶盒自己装应用 — 王铂为作品集</title>
+<meta name="description" content="VOD 新增应用配置需求设计：应用市场、应用管理、磁盘使用三条主流程与 9 类异常边界定义。">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/vod-demo.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="../index.html"><span class="dot">王</span> 王铂为 · 产品作品集</a>
+    <button class="nav-toggle" aria-label="菜单">☰</button>
+    <nav class="nav-links">
+      <a href="../index.html#projects">全部项目</a>
+      <a href="vod-app-config.html" class="active">VOD 应用配置</a>
+      <a href="bilibili-slate.html">稍后再看优化</a>
+      <a href="anime-calendar.html">新番日历</a>
+      <a href="acfun-vs-bilibili.html">竞品分析</a>
+    </nav>
+  </div>
+</header>
+
+<div class="phead">
+  <div class="wrap">
+    <a class="back" href="../index.html#projects">← 返回作品集</a>
+    <span class="eyebrow">需求设计 · 硬件端 · 0 → 1</span>
+    <h1>VOD 新增应用配置：<br>让机顶盒自己装应用</h1>
+    <p class="lead" style="max-width:760px">
+      客户只有一句话：「希望 VOD 能提供更多的应用服务。」
+      我的工作是把这句话变成一份开发拿着就能开工、不用回来问第二遍的需求说明书。
+    </p>
+    <div class="meta">
+      <span><b>角色</b> 产品需求设计 / 原型设计</span>
+      <span><b>交付物</b> 需求说明书 V1.0 + 墨刀高保真原型</span>
+      <span><b>范围</b> 3 条主流程 · 9 类异常与边界</span>
+      <span><b>版本</b> V1.0（2026.8.24 新建）</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap proj">
+  <aside class="toc">
+    <div class="t">目录</div>
+    <a href="#s1">01 需求背景与清单</a>
+    <a href="#s2">02 入口调整</a>
+    <a href="#s3">03 应用市场</a>
+    <a href="#s4">04 应用管理</a>
+    <a href="#s5">05 磁盘使用情况</a>
+    <a href="#s6">06 可交互原型</a>
+    <a href="#s7">07 原型设计稿</a>
+    <a href="#s8">08 复盘</a>
+  </aside>
+
+  <article class="article">
+
+    <div class="callout">
+      <span class="lab">一句话结论</span>
+      <p>这个功能真正的难点不在"做一个应用商店"，而在<b>把"可下载、可卸载、可更新"的所有失败路径写清楚</b>——
+      空间不足时提示多久、能不能关、连点怎么办、卸载中能不能取消。开发不会因为主流程停下来，只会因为边界不明停下来。</p>
+    </div>
+
+    <h2 id="s1">01 需求背景与清单</h2>
+
+    <h3>1.1 需求背景</h3>
+    <p>客户要求提供更多的应用服务，因此需要在 VOD 新增应用配置功能，可以<b>下载和卸载云端应用</b>。</p>
+
+    <div class="callout warn">
+      <span class="lab">从"客户要什么"到"问题是什么"</span>
+      <p>客户的原话是方案，不是问题。往下追一层：客户真正的痛点是——<b>VOD 的功能边界被出厂固化了</b>。
+      设备卖出去之后能力就锁死了，只能靠 OTA 整体升级来加功能，周期长、风险高、还只能全量推送。
+      应用配置要解决的其实是「<b>让设备的能力可以在售卖后按需扩展</b>」，而应用市场只是它的第一个形态。</p>
+      <p>这个判断决定了后续两个设计取向：<b>①</b> 一次做满 12 个位置的容量，留好"下一页"的扩展位；
+      <b>②</b> 系统自带功能（如缺歌反馈）不进入应用管理，从架构上把"平台能力"和"可装卸应用"隔开。</p>
+    </div>
+
+    <h3>1.2 需求清单</h3>
+    <table class="tbl">
+      <thead><tr><th style="width:70px">序号</th><th>需求描述</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>【新增】系统设置下新增应用配置入口</td></tr>
+        <tr><td>2</td><td>【新增】应用配置功能</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted">本期同时交付墨刀可点击原型，用于向客户与开发演示交互；原型地址随需求说明书一并提供。</p>
+
+    <h2 id="s2">02 入口调整</h2>
+    <p>设置-系统设置界面调整：在左侧列表<b>最下方（服务器配置下）</b>新增「应用配置」入口按钮；
+      点击时按钮变为蓝色，并将右侧内容区切换到应用配置界面。</p>
+
+    <div class="callout">
+      <span class="lab">设计取舍</span>
+      <p>为什么放在这一层、而不是给一个独立首页入口？<b>应用配置本质是"设备能力管理"，属于设置域</b>，
+      不该和内容消费入口（影视、音乐）争夺首页曝光。放在系统设置里，既符合用户的心智模型，
+      也避免了"应用市场"在产品冷启动期过度占用首页资源。代价是入口较深，需要靠客服话术和说明书引导首批使用。</p>
+    </div>
+
+    <h2 id="s3">03 应用市场（2.2.1）</h2>
+    <p>应用配置界面由上方居中的两个 tab 切换显示——「应用市场」与「应用管理」，默认显示<b>应用市场</b>，当前 tab 为蓝色。
+      右下角设置返回按钮，可返回设置界面。</p>
+
+    <h3>界面结构</h3>
+    <ul>
+      <li>一页由 <b>3 行 × 4 列，共 12 个应用位置</b>组成；后续应用增多时在右下方增加「下一页」按钮。</li>
+      <li>每个应用：logo → 应用名 → 「下载」按钮，用户点击即可直接下载安装。</li>
+      <li>点击应用图标进入应用详情：展示 logo、应用名称、版本信息、<b>需要存储空间</b>、应用详情内容，并设置下载按钮（逻辑同上）；右上角关闭按钮可关闭当前页面。</li>
+      <li><b>应用市场只显示未下载的应用</b>，已下载的应用只在应用管理中显示，下载完成后自动从应用市场移除。</li>
+    </ul>
+
+    <h3>下载中的状态与暂停</h3>
+    <div class="steps">
+      <div class="step"><b>进度替换按钮</b><p>下载时，原「下载」按钮的位置替换为<b>下载进度条</b>，显示当前下载百分比。</p></div>
+      <div class="step"><b>点击暂停 / 继续</b><p>下载中点击进度条即暂停下载，进度条上显示「暂停中」；再点击一次继续下载。</p></div>
+    </div>
+
+    <h3>空间不足：一条被反复打磨的异常</h3>
+    <p>当设备可用存储空间不足以安装当前应用时，用户点击下载按钮后：</p>
+    <table class="tbl">
+      <thead><tr><th style="width:150px">规则</th><th>定义</th></tr></thead>
+      <tbody>
+        <tr><td>提示内容</td><td>屏幕中心弹出 Toast：「下载失败！磁盘空间不足，请卸载应用后重试」</td></tr>
+        <tr><td>显示时长</td><td>共 <b>3 秒</b>，到时自动淡出消失</td></tr>
+        <tr><td>是否阻断</td><td><b>不阻断</b>——提示展示期间不影响用户其他操作</td></tr>
+        <tr><td>冷却锁</td><td>首次提示触发后立即启动 <b>3 秒冷却锁</b></td></tr>
+        <tr><td>冷却期内连点</td><td>重复点击「下载」<b>仅重置当前提示的剩余显示计时</b>（重新开始 3 秒倒计时），<b>不再触发新的下载检测</b></td></tr>
+        <tr><td>恢复条件</td><td>冷却锁解除 <b>且</b> 提示完全消失后，下载按钮才恢复正常可点击响应</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <span class="lab">为什么值得写三条规则</span>
+      <p>用户遇到"空间不足"时的本能反应是<b>连续点击</b>。如果每次点击都重新检测、重新弹提示，
+      用户会看到提示疯狂闪烁——看起来像卡死。冷却锁 + 只重置倒计时的组合，让连点表现为
+      「提示一直在，但我没有触发任何新动作」，这是最不容易被误解的反馈方式。
+      这三条看似琐碎的规则，是把"用户会怎么做"提前写进了代码里。</p>
+    </div>
+
+    <h2 id="s4">04 应用管理（2.2.2）</h2>
+    <p>同样是 3 行 × 4 列共 12 个应用位置。每个应用：logo → 应用名 → 「卸载」按钮。</p>
+
+    <h3>卸载流程</h3>
+    <div class="steps">
+      <div class="step"><b>二次确认</b><p>点击卸载后弹出弹窗：「确定要卸载（应用名）吗？」</p></div>
+      <div class="step"><b>取消</b><p>点击取消，返回刚才的页面。</p></div>
+      <div class="step"><b>确定 → 卸载中</b><p>弹出「正在卸载中，请稍后…」，该弹窗<b>不能被用户手动关闭</b>，卸载完成后自动退出。</p></div>
+      <div class="step"><b>完成提示</b><p>弹出「已成功卸载（应用名）」，显示 <b>2 秒</b>后自动淡出，不影响用户操作。</p></div>
+    </div>
+
+    <h3>详情页与检查更新</h3>
+    <p>点击图标进入详情：展示 logo、应用名称、版本信息、<b>占用存储空间</b>、应用详情内容，并设置卸载按钮（逻辑同上）；右上角关闭按钮可关闭页面。</p>
+    <p>已下载的应用可在详情页<b>检查更新</b>：</p>
+    <table class="tbl">
+      <thead><tr><th style="width:210px">分支</th><th>提示与后续</th></tr></thead>
+      <tbody>
+        <tr><td>点击「检查更新」</td><td>弹出「检查更新中，请稍后…」</td></tr>
+        <tr><td>已是最新版本</td><td>弹出「目前已是最新版本」</td></tr>
+        <tr><td>存在新版本</td><td>弹出「检测到新版本，是否进行更新？」</td></tr>
+        <tr><td>点击取消</td><td>退出当前提示，返回应用详情页面</td></tr>
+        <tr><td>点击确定</td><td>进行更新，弹出「正在更新中，请稍后…」；完成后弹出「已成功更新（应用名）」，2 秒后消失，不影响用户操作</td></tr>
+        <tr><td>确定后空间不足</td><td>弹出「更新失败！磁盘空间不足，请卸载应用后重试」</td></tr>
+      </tbody>
+    </table>
+
+    <h3>平台能力的边界</h3>
+    <ul>
+      <li><b>系统自带的功能（如缺歌反馈等）不会出现在应用管理界面中，也无法被卸载。</b></li>
+      <li>已经卸载的应用可以在应用市场中重新下载。</li>
+    </ul>
+
+    <h2 id="s5">05 磁盘使用情况（2.2.3）</h2>
+    <ul>
+      <li>在应用配置的右上角、两个 tab 右侧设置「磁盘使用情况」按钮。</li>
+      <li>点击后弹出弹窗，窗口名称「磁盘使用情况」，在上方居中显示；右上角设关闭按钮，也可点击弹窗外的区域关闭。</li>
+      <li>弹窗主体为一个<b>环形图</b>：已占用的内存为蓝色条，按使用存储的百分比<b>顺时针</b>占用环形区域。</li>
+      <li>环形图内部居中显示当前存储占总空间的<b>百分比</b>；百分比下方展示<b>具体存储和总存储的数值大小</b>。</li>
+    </ul>
+
+    <div class="callout">
+      <span class="lab">设计取舍</span>
+      <p>把磁盘信息做成"按需弹出的环形图"，而不是常驻在应用管理页顶部——因为用户只在
+      <b>即将做删除决策</b> 或 <b>刚刚被"空间不足"挡下</b> 这两个时刻需要它。
+      常驻进度条会增加日常浏览的视觉噪音，却只在极少数时刻被真正阅读。</p>
+    </div>
+
+    <h2 id="s6">06 可交互原型</h2>
+    <p>下面这份原型是我按需求说明书 V1.0 的规则<b>逐条还原</b>的可交互 Demo（纯前端，无需安装）。
+      建议按这个顺序点一遍，可以完整覆盖需求里的全部分支：</p>
+    <ol>
+      <li>左侧点「应用配置」→ 进入应用市场</li>
+      <li>点任意应用「下载」→ 下载中点进度条 <b>暂停 / 继续</b></li>
+      <li>点「云游戏大厅」下载 → 触发 <b>空间不足提示</b>，连续点击按钮观察 3 秒冷却锁</li>
+      <li>右上角「磁盘使用情况」→ 查看环形图</li>
+      <li>切到「应用管理」→ 卸载 → 取消 / 确定；再进详情页试「检查更新」</li>
+    </ol>
+
+    <div class="vod" id="vod-demo"></div>
+    <p class="small muted" style="margin-top:10px">
+      注：本 Demo 为展示需求规则而独立实现，非产品正式客户端；存储容量、下载耗时、服务器返回均为模拟值。
+    </p>
+
+    <h2 id="s7">07 原型设计稿</h2>
+    <p>用墨刀完成的高保真原型。下面这些图是从<b>墨刀离线演示包</b>里自动截取的画板 —— 演示包保留的是原型真实渲染结果，
+      比 PDF 导出更能反映设计意图（PDF 导出会把多次复用同一底图，看不出弹窗状态）。</p>
+    <div class="gallery">
+      <figure class="shot">
+        <img src="../assets/img/mocto/vod-proto-1.webp" alt="应用配置画板 A" data-ph="应用配置画板 A" data-ph-hint="请把墨刀截图放入 assets/img/mocto/">
+        <figcaption>演示包 · 应用配置画板 A（3 行 × 4 列应用位）</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="../assets/img/mocto/vod-proto-2.webp" alt="应用配置画板 B" data-ph="应用配置画板 B">
+        <figcaption>演示包 · 应用配置画板 B（tab 与状态切换）</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="../assets/img/mocto/vod-proto-4.webp" alt="应用配置画板高清截取" data-ph="应用配置画板（高清）">
+        <figcaption>演示包 · 应用配置画板（高清截取）</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="../assets/img/mocto/vod-proto-3.webp" alt="演示模式单画板" data-ph="演示模式单画板">
+        <figcaption>演示模式 · 单画板全屏演示</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="../assets/img/mocto/vod-proto-5.webp" alt="演示模式界面" data-ph="演示模式界面">
+        <figcaption>演示模式 · 原型查看器界面（左侧画板列表）</figcaption>
+      </figure>
+    </div>
+    <p class="small muted">
+      说明：磁盘使用情况是弹出层（弹窗），静态画板截图不体现弹窗状态，请看上方
+      <b><a href="#s6">可交互原型</a></b> 中的实际环形图效果。
+    </p>
+
+    <h2 id="s8">08 复盘</h2>
+    <h3>这次做对了什么</h3>
+    <ul>
+      <li><b>先对齐"边界"，再对齐"界面"。</b>主流程两小时就能画完，真正花时间的是把暂停、冷却锁、非模态提示这类
+        "不写就一定会被开发追问"的规则逐条定义清楚。</li>
+      <li><b>用可点击原型代替文字描述。</b>「连点下载按钮会怎样」这种问题，一段文字说不清，一个可点的原型三秒钟就能演示明白。</li>
+      <li><b>把长期扩展位预留进规格。</b>一页 12 格 + 右下方"下一页"，避免应用增多后返工重做布局。</li>
+    </ul>
+
+    <h3>如果重做一次</h3>
+    <ul>
+      <li>补一版<b>状态机图</b>（未安装 / 下载中 / 暂停 / 已安装 / 更新中），比逐条文字更不容易漏状态。</li>
+      <li>提前定义<b>下载失败（网络中断、服务器不可达）</b>的提示文案——本期只覆盖了"空间不足"这一种失败。</li>
+      <li>为"应用体积超过总容量"这种极端场景定义兜底话术，避免用户陷入"永远装不上"的困惑。</li>
+    </ul>
+
+    <h3>变更记录</h3>
+    <table class="tbl">
+      <thead><tr><th>版本</th><th>修订人</th><th>修订时间</th><th>修订内容</th></tr></thead>
+      <tbody><tr><td>V1.0</td><td>王铂为</td><td>2026.8.24</td><td>新建文档</td></tr></tbody>
+    </table>
+
+    <div class="callout ok">
+      <span class="lab">下一步</span>
+      <p>把状态机图与"网络类失败"的文案补齐成 V1.1，并在需求评审会上用可交互原型代替逐条朗读，收集开发对边界规则的反驳意见。</p>
+    </div>
+
+  </article>
+</div>
+
+<footer class="site">
+  <div class="wrap row">
+    <span>© <span data-year></span> 王铂为 · 产品作品集</span>
+    <span><a href="../index.html#projects">← 返回全部项目</a></span>
+  </div>
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/vod-demo.js"></script>
+</body>
+</html>
