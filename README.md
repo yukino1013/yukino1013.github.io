@@ -11,21 +11,31 @@
 portfolio_site/
 ├─ index.html                      首页：Hero + 4 个项目卡 + 能力矩阵 + 关于 + 联系
 ├─ projects/
-│  ├─ vod-app-config.html          VOD 新增应用配置（需求说明书 + 可交互原型 + 原型设计稿）
-│  ├─ bilibili-slate.html          B站「稍后再看」优化（数据驱动）
-│  ├─ anime-calendar.html          番约AnimeData 新番日历（独立开发 App）
-│  └─ acfun-vs-bilibili.html       AcFun vs B站 竞品分析
+│  ├─ vod-app-config.html          VOD 应用配置（需求说明书 + 可交互原型 + 原型设计稿）
+│  ├─ bilibili-slate.html          B站「稍后再看」功能优化（数据驱动，顶部有飞书原文链接）
+│  ├─ anime-calendar.html          AnimeDate 新番日历（独立开发 App）
+│  └─ acfun-vs-bilibili.html       AcFun 与 Bilibili 竞品分析（顶部有飞书原文链接）
 └─ assets/
    ├─ css/style.css                站点样式
    ├─ css/vod-demo.css             VOD 可交互原型样式（作用域 .vod，与站点主题隔离）
    ├─ js/site.js                   导航 / 目录高亮 / 图片缺失占位
    ├─ js/vod-demo.js               VOD 可交互原型逻辑（按需求说明书逐条还原）
    └─ img/
-      ├─ anime/                    新番日历 App 实机截图（12 张）
+      ├─ avatar.webp               头像（导航栏和名片共用）
+      ├─ anime/                    AnimeDate 的 3 张实机截图
       ├─ bilibili/                 稍后再看项目的 SQL 与原型图（10 张）
       ├─ mocto/                    VOD 墨刀原型截图（5 张）
       └─ ...
 ```
+
+## 几处刻意的设计
+
+**卡片整块可点。** 首页四张项目卡各自带一个铺满整卡的 `<a class="card-link">`（在 `style.css` 里），
+所以点卡片任意位置都能进详情页，点「看详情」也一样。链接用绝对定位铺满，卡里的文字仍然可以正常选中复制。
+
+**飞书原文放在详情页最前面。** 稍后再看优化和竞品分析这两个项目，
+正文是我从这个站点重排的，原始版本在飞书文档里。详情页顶部有一个显眼的文档入口，
+面试官想看我原始交付物的话可以直接跳过去，不用往下翻。
 
 ---
 
