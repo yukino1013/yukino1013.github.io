@@ -94,6 +94,9 @@ python -m http.server 8901
 | Vercel / Netlify | 拖拽整个 `portfolio_site` 文件夹到部署面板，无需配置构建命令 |
 | 对象存储（OSS/COS） | 上传整个目录，开启静态网站托管，首页设为 `index.html` |
 
+> 国内访问 GitHub Pages 实测要 4–25 秒，给 HR 看是真实风险。
+> 国内托管的完整步骤（含备案要求与踩坑）见 `D:\edge下载\portfolio_src\国内托管上线步骤.md`。
+
 ---
 
 ## 需要你维护的内容
