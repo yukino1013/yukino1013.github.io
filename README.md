@@ -7,6 +7,12 @@
 
 ## 改版记录
 
+### 2026-09-18
+
+- 求职方向由「AI 产品经理」改为「**产品经理 / AI 产品经理**」，共 3 处（Hero 徽章、Hero 介绍文案、名片）。
+- 排版实测（`check_hero_layout.js`，1280px 与 390px 两档）：无横向溢出；介绍文案行数不变（桌面 3 行 / 手机 6 行）；
+  名片里该行在桌面宽度由 1 行变 2 行、名片整体高 +27px，手机宽度无变化。
+
 ### 2026-09-17（提交 `cfde68b`，已发布）
 
 按用户反馈调整的 9 项，全部已上线：
@@ -111,7 +117,24 @@ python -m http.server 8901
 
 修改时注意三处都改，别只改一处。
 
-### 2. VOD 可交互原型的行为速查
+### 2. 求职方向出现的位置
+
+「产品经理 / AI 产品经理」这句话在 `index.html` 里出现 **3 处**，改的时候要一起改：
+
+| 位置 | 当前文案 |
+|---|---|
+| Hero 徽章（`.eyebrow`） | `产品经理 / AI 产品经理 · 校招` |
+| Hero 介绍文案（`.lead`） | 我来自重庆邮电大学，求职方向是产品经理 / AI 产品经理。 |
+| 名片区（`.idcard` 的 `.small`） | 重庆邮电大学 · 求职方向：产品经理 / AI 产品经理 |
+
+⚠️ 改动后请跑一次排版检查，确认没有撑破布局：
+
+```powershell
+cd "D:\edge下载\portfolio_src"
+node check_hero_layout.js     # 期望：排版无溢出、无异常换行
+```
+
+### 3. VOD 可交互原型的行为速查
 
 原型在 `assets/js/vod-demo.js`，所有规则都带需求说明书章节号注释：
 
@@ -122,7 +145,7 @@ python -m http.server 8901
 - 演示直链：`vod-app-config.html?demo=market` / `?demo=manage` / `?demo=disk`
 - **测试钩子**：页面暴露了 `window.__vod`，可以在浏览器控制台调 `__vod.state`、`__vod.reset()` 等做演示。
 
-### 3. 想换/加图片
+### 4. 想换/加图片
 
 图片全部是 **WebP**。PNG/JPG 转 WebP：
 
@@ -182,6 +205,7 @@ python -c "from PIL import Image; im=Image.open('输入.png').convert('RGB'); im
 | `test_vod.js` | 用 Chrome DevTools Protocol **真实驱动**页面，逐条验证需求说明书的交互规则（38 项断言） |
 | `test_cardclick2.js` | 验证首页卡片任意位置可点击（4 卡 × 5 探测点） |
 | `test_carddoc.js` | 验证首页飞书按钮新开标签页、且不劫持卡片跳转 |
+| `check_hero_layout.js` | 量 Hero 与名片的排版：对比文案改前/改后的行数与宽度，检查是否溢出（1280px / 390px 两档） |
 | `check_links.py` | 检查全站本地引用是否有死链 |
 | `validate.py` | HTML 标签结构完整性 + 口语化残留扫描（本地） |
 | `verify_live2.py` | 推送后线上内容验证（内含 Pages 构建等待 + 全站禁用词扫描 + 卡片层级断言） |
